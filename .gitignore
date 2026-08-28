@@ -1,0 +1,25 @@
+# macOS
+.DS_Store
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.idea/
+.ipynb_checkpoints/
+
+# 参考蓝本项目（体积约 5.7GB，仅本地参考，不进仓库）
+oceanai8.3.2/
+oceanai8.3.2.zip
+
+# 后端运行时产物（交付物 4 可用 scripts/init_db.py 重新生成）
+backend/.venv/
+backend/knowledge.db
+backend/knowledge.db-wal
+backend/knowledge.db-shm
+backend/uploads/
+backend/logs/
+
+# 前端（预留）
+frontend/node_modules/
+node_modules/
