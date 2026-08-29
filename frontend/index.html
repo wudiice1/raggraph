@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登录 · 认知知识库</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div id="auth">
+    <div class="auth">
+      <div class="auth__hero">
+        <div class="starfield" ref="starfield"></div>
+        <div class="auth__brand">
+          <svg class="mark" viewBox="0 0 24 24" fill="none">
+            <circle cx="6" cy="6" r="2.2" fill="#F2C14E"/><circle cx="18" cy="5" r="1.6" fill="#7DA6F0"/>
+            <circle cx="17" cy="18" r="2" fill="#5EC8D6"/><circle cx="4" cy="16" r="1.4" fill="#E78FBF"/>
+            <path d="M6 6L18 5M18 5L17 18M6 6L4 16M4 16L17 18" stroke="#333c5e" stroke-width="1"/>
+          </svg>
+          认知知识库
+        </div>
+        <div>
+          <div class="eyebrow">Cognitive Knowledge Graph</div>
+          <h1>把文档，<br />读成一张<span class="accent">星图</span>。</h1>
+          <p class="lede">上传一篇文档，系统自动抽取实体与关系。在知识图谱上，看到知识之间被忽略的关联——每一次理解，都可追溯回原文。</p>
+        </div>
+      </div>
+
+      <div class="auth__form">
+        <div class="auth__panel">
+          <h2>{{ mode === 'login' ? '登录' : '创建账号' }}</h2>
+          <p class="sub">{{ mode === 'login' ? '欢迎回来，继续探索你的知识库。' : '注册后即可上传文档、构建图谱。' }}</p>
+
+          <div class="field">
+            <label>用户名</label>
+            <input class="input" v-model.trim="form.username" placeholder="用户名" autocomplete="username" />
+          </div>
+          <div class="field" v-if="mode === 'register'">
+            <label>邮箱</label>
+            <input class="input" v-model.trim="form.email" placeholder="you@example.com" autocomplete="email" />
+          </div>
+          <div class="field">
+            <label>密码</label>
+            <input class="input" v-model="form.password" type="password" placeholder="密码" autocomplete="current-password" @keyup.enter="submit" />
+          </div>
+
+          <button class="btn btn--primary" style="width:100%;justify-content:center" :disabled="loading" @click="submit">
+            {{ loading ? '请稍候…' : (mode === 'login' ? '登录' : '注册') }}
+          </button>
+
+          <p v-if="error" class="auth__switch" style="color:var(--danger)">{{ error }}</p>
+
+          <p class="auth__switch">
+            {{ mode === 'login' ? '还没有账号？' : '已有账号？' }}
+            <a @click="toggle">{{ mode === 'login' ? '注册' : '去登录' }}</a>
+          </p>
+
+          <p class="auth__switch" style="color:var(--text-faint);font-size:12px;margin-top:20px">
+            内置管理员：admin / admin123
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="toast-root"></div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.27/dist/vue.global.prod.js"></script>
+  <script src="assets/js/config.js"></script>
+  <script src="assets/js/store.js"></script>
+  <script src="assets/js/api.js"></script>
+  <script>
+    (function () {
+      // 已登录则直接进入应用
+      if (store.getUser()) location.replace('app.html');
+
+      const app = Vue.createApp({
+        data() {
+          return { mode: 'login', form: { username: '', email: '', password: '' }, loading: false, error: '' };
+        },
+        methods: {
+          toggle() {
+            this.mode = this.mode === 'login' ? 'register' : 'login';
+            this.error = '';
+          },
+          async submit() {
+            this.error = '';
+            if (!this.form.username || !this.form.password || (this.mode === 'register' && !this.form.email)) {
+              this.error = '请填写完整信息';
+              return;
+            }
+            this.loading = true;
+            try {
+              if (this.mode === 'login') {
+                const session = await api.post('/auth/login', { username: this.form.username, password: this.form.password });
+                store.setSession(session);
+                location.replace('app.html');
+              } else {
+                await api.post('/auth/register', { username: this.form.username, email: this.form.email, password: this.form.password });
+                this.toast('注册成功，请登录', 'ok');
+                this.mode = 'login';
+                this.form.password = '';
+              }
+            } catch (e) {
+              this.error = e.message;
+            } finally {
+              this.loading = false;
+            }
+          },
+          toast(msg, type) {
+            const root = document.querySelector('.toast-root');
+            const el = document.createElement('div');
+            el.className = 'toast toast--' + type;
+            el.textContent = msg;
+            root.appendChild(el);
+            setTimeout(() => el.remove(), 3200);
+          },
+          renderStars() {
+            const box = this.$refs.starfield;
+            if (!box) return;
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            for (let i = 0; i < 44; i++) {
+              const s = document.createElement('span');
+              s.className = 'star';
+              const size = (Math.random() * 2 + 1).toFixed(1);
+              s.style.width = size + 'px';
+              s.style.height = size + 'px';
+              s.style.left = (Math.random() * 100).toFixed(1) + '%';
+              s.style.top = (Math.random() * 100).toFixed(1) + '%';
+              s.style.setProperty('--tw', (Math.random() * 4 + 2.5).toFixed(1) + 's');
+              s.style.animationDelay = (Math.random() * 5).toFixed(1) + 's';
+              if (reduced) s.style.animation = 'none';
+              box.appendChild(s);
+            }
+          },
+        },
+        mounted() {
+          this.renderStars();
+        },
+      });
+      app.mount('#auth');
+    })();
+  </script>
+</body>
+</html>

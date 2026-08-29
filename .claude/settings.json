@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -c \"import json;d=json.load\\(open\\('docs/openapi.json',encoding='utf-8'\\)\\);print\\('paths:',len\\(d['paths']\\)\\);print\\('schemas:',list\\(d['components']['schemas'].keys\\(\\)\\)\\)\")"
+    ]
+  }
+}
