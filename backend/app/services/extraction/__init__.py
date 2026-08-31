@@ -5,12 +5,14 @@
 import logging
 
 from app.services.extraction.base import BaseExtractionEngine
+from app.services.extraction.engine import JiebaEngine
 from app.services.extraction.stub import StubExtractionEngine
 
 logger = logging.getLogger(__name__)
 
 ENGINE_REGISTRY: dict[str, type[BaseExtractionEngine]] = {
     "stub": StubExtractionEngine,
+    "jieba": JiebaEngine,
 }
 
 

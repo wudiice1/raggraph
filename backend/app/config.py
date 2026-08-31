@@ -25,7 +25,7 @@ class Settings:
     allowed_file_types = {"pdf", "docx", "txt", "md"}
 
     # 抽取引擎注册名（见 app/services/extraction/__init__.py 的 ENGINE_REGISTRY）
-    extraction_engine: str = _env("EXTRACTION_ENGINE", "stub")
+    extraction_engine: str = _env("EXTRACTION_ENGINE", "jieba")
 
     # 内置管理员（AUTH-06）
     default_admin_username: str = _env("ADMIN_USERNAME", "admin")

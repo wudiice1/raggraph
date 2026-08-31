@@ -28,6 +28,8 @@ def test_alembic_upgrade_creates_full_schema(tmp_path):
         env=env,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=60,
     )
     assert result.returncode == 0, result.stderr
@@ -52,6 +54,8 @@ def test_create_all_idempotent_after_migration(tmp_path):
         env=env,
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=60,
     )
 
